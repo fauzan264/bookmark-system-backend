@@ -1,5 +1,6 @@
+import * as jwt from "jsonwebtoken";
 import { prismaClient } from "../config/database";
-import { RegisterUserRequest, toUserResponse, UserResponse } from "../model/user-model";
+import { LoginUserRequest, RegisterUserRequest, toUserResponse, UserResponse } from "../model/user-model";
 import { UserValidation } from "../validation.ts/user-validation";
 import { HTTPException } from "hono/http-exception";
 
@@ -29,6 +30,47 @@ class UserService {
         })
 
         return toUserResponse(user)
+    }
+
+    static async login(request: LoginUserRequest): Promise<UserResponse> {
+        request = UserValidation.LOGIN.parse(request)
+
+        let user = await prismaClient.user.findUnique({
+            where: {
+                email: request.email,
+            }
+        })
+
+        if (!user) {
+            throw new HTTPException(401, {
+                message: "Username or password is wrong",
+            })
+        }
+
+        const isPasswordValid = await Bun.password.verify(request.password, user.password, "bcrypt")
+        if (!isPasswordValid) {
+            throw new HTTPException(401, {
+                message: "Username or password is wrong",
+            })
+        }
+
+        // user = await prismaClient.user.update({
+        //     where: {
+        //         email: request.email,
+        //     },
+        //     data: {
+        //         token: crypto.randomUUID()
+        //     }
+        // })
+        const token = jwt.sign(
+            { userID: user.id, email: user.email },
+            process.env.JWT_SECRET!,
+            { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
+        )
+
+        const response = toUserResponse(user)
+        response.token = token
+        return response
     }
 }
 

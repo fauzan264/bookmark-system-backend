@@ -6,6 +6,11 @@ type RegisterUserRequest = {
     password: string;
 }
 
+type LoginUserRequest = {
+    email: string;
+    password: string;
+}
+
 type UserResponse = {
     email: string;
     name: string;
@@ -21,6 +26,7 @@ function toUserResponse(user: User): UserResponse {
 
 export {
     RegisterUserRequest,
+    LoginUserRequest,
     UserResponse,
     toUserResponse
 }

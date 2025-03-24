@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "bun:test";
+import { describe, it, expect, afterEach, beforeEach } from "bun:test";
 import app from "../src";
 import { UserTest } from "./test-util";
 import { password } from "bun";
@@ -63,4 +63,59 @@ describe('POST /auth/register', () => {
         expect(body.data.email).toBe("testing@mail.com")
         expect(body.data.name).toBe("testing")
     })
+})
+
+describe('POST /auth/login', () => {
+    beforeEach(async () => {
+        await UserTest.create()
+    })
+
+    afterEach(async () => {
+        await UserTest.delete()
+    })
+
+    it('should be able to login', async () => {
+        const response = await app.request('/auth/login', {
+            method: 'post',
+            body: JSON.stringify({
+                email: "testing@mail.com",
+                password: "testing"
+            })
+        })
+
+        expect(response.status).toBe(200)
+
+        const body = await response.json()
+        expect(body.data.token).toBeDefined()
+    });
+
+    it('should be rejected if email is wrong', async () => {
+        const response = await app.request('/auth/login', {
+            method: "post",
+            body: JSON.stringify({
+                email: "wrong@mail.com",
+                password: "test",
+            })
+        })
+
+        expect(response.status).toBe(401)
+
+        const body = await response.json()
+        expect(body.errors).toBeDefined()
+    });
+
+    it('should be rejected if password is wrong', async () => {
+        const response = await app.request('/auth/login', {
+            method: "post",
+            body: JSON.stringify({
+                email: "testing@mail.com",
+                password: "wrong"
+            })
+        })
+
+        expect(response.status).toBe(401)
+
+        const body = await response.json()
+        expect(body.errors).toBeDefined()
+    });
 })
