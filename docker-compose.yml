@@ -1,0 +1,36 @@
+services:
+    # backend:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     container_name: transaction_backend_service
+    #     env_file:
+    #         - .env
+    #     ports:
+    #         - "${APP_PORT}:${APP_PORT}"
+    #     depends_on:
+    #         - db
+    #     networks:
+    #         - bookmark_system_network
+
+    db:
+        image: postgres:13
+        container_name: bookmark_system_db
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        ports:
+            - "${DB_PORT}:5432"
+        volumes:
+            - bookmark_system:/var/lib/bookmark_system/data
+            # - ${PWD}/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - bookmark_system_network
+volumes:
+    bookmark_system:
+        driver: local
+
+networks:
+    bookmark_system_network:
+        driver: bridge

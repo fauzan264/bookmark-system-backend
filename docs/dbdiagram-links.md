@@ -1,0 +1,1 @@
+https://dbdiagram.io/d/Bookmark-System-67e1a99575d75cc84449a814
