@@ -2,7 +2,7 @@ import * as jwt from "jsonwebtoken";
 import { JWT } from "../utils/jwt";
 import { prismaClient } from "../config/database";
 import { LoginUserRequest, RegisterUserRequest, toUserResponse, UserResponse } from "../model/user-model";
-import { UserValidation } from "../validation.ts/user-validation";
+import { UserValidation } from "../validation/user-validation";
 import { HTTPException } from "hono/http-exception";
 import { User } from "@prisma/client";
 
