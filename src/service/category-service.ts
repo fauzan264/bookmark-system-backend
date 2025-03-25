@@ -1,6 +1,6 @@
 import { Category, User } from "@prisma/client";
 import { CategoryResponse, CreateCategoryRequest, RemoveCategoryRequest, toCategoryResponse, UpdateCategoryRequest } from "../model/category-model";
-import { CategoryValidation } from "../validation.ts/category-validation";
+import { CategoryValidation } from "../validation/category-validation";
 import { prismaClient } from "../config/database";
 import { HTTPException } from "hono/http-exception";
 
