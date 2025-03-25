@@ -50,9 +50,9 @@ This repository contains the backend service for the Bookmark System, built usin
 ## API Documentation
 
 For detailed API specifications, please refer to the API documentation:
-[API Documentation](https://github.com/fauzan264/bookmark-system-backend/docs/api-spec)
+[API Documentation](https://github.com/fauzan264/bookmark-system-backend/tree/master/docs/api-spec)
 
 ## Database Schema
 
 The database schema is documented here:
-[Database Diagram](https://github.com/fauzan264/bookmark-system-backend/docs)
+[Database Diagram](https://github.com/fauzan264/bookmark-system-backend/tree/master/docs)
