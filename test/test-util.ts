@@ -9,8 +9,7 @@ class UserTest {
                 password: await Bun.password.hash("testing", {
                     algorithm: "bcrypt",
                     cost: 10
-                }),
-                token: "testing"
+                })
             }
         })
     }

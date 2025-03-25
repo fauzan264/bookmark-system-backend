@@ -119,3 +119,67 @@ describe('POST /auth/login', () => {
         expect(body.errors).toBeDefined()
     });
 })
+
+describe("GET /users/session", () => {
+    let token: string;
+    beforeEach(async () => {
+        await UserTest.create()
+
+        const loginResponse = await app.request("/auth/login", {
+            method: "post",
+            body: JSON.stringify({
+                email: "testing@mail.com",
+                password: "testing"
+            }),
+            headers: { "Content-Type": "application/json" }
+        });
+
+        const loginBody = await loginResponse.json();
+        token = loginBody.data.token;
+    })
+
+    afterEach(async () => {
+        await UserTest.delete()
+    })
+
+    it('should be able to get user', async () => {
+        const response = await app.request('/users/session', {
+            method: 'get',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        expect(response.status).toBe(200)
+
+        const body = await response.json()
+        expect(body.data).toBeDefined()
+        expect(body.data.email).toBeDefined()
+        expect(body.data.name).toBeDefined()
+    })
+
+    it('should not be able to get user if token is invalid', async () => {
+        const response = await app.request('/api/users/current', {
+            method: 'get',
+            headers: {
+                'Authorization': 'wrong'
+            }
+        })
+
+        expect(response.status).toBe(401)
+
+        const body = await response.json()
+        expect(body.errors).toBeDefined()
+    })
+
+    it('should not be able to get user if there is no Authorization header', async () => {
+        const response = await app.request('/api/users/current', {
+            method: 'get',
+        })
+
+        expect(response.status).toBe(401)
+
+        const body = await response.json()
+        expect(body.errors).toBeDefined()
+    })
+})

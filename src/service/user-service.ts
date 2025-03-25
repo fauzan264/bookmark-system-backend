@@ -1,8 +1,10 @@
 import * as jwt from "jsonwebtoken";
+import { JWT } from "../utils/jwt";
 import { prismaClient } from "../config/database";
 import { LoginUserRequest, RegisterUserRequest, toUserResponse, UserResponse } from "../model/user-model";
 import { UserValidation } from "../validation.ts/user-validation";
 import { HTTPException } from "hono/http-exception";
+import { User } from "@prisma/client";
 
 class UserService {
     static async register(request: RegisterUserRequest): Promise<UserResponse> {
@@ -54,14 +56,6 @@ class UserService {
             })
         }
 
-        // user = await prismaClient.user.update({
-        //     where: {
-        //         email: request.email,
-        //     },
-        //     data: {
-        //         token: crypto.randomUUID()
-        //     }
-        // })
         const token = jwt.sign(
             { userID: user.id, email: user.email },
             process.env.JWT_SECRET!,
@@ -71,6 +65,35 @@ class UserService {
         const response = toUserResponse(user)
         response.token = token
         return response
+    }
+
+    static async get(token: string | undefined | null): Promise<User> {
+        if (!token) {
+            throw new HTTPException(401, {
+                message: "Unauthorized"
+            })
+        }
+
+        // verification
+        const decoded = JWT.verify(token);
+        if (!decoded || !decoded.userID) {
+            throw new HTTPException(401, {
+                message: "Unauthorized"
+            })
+        }
+
+        // search user
+        const user = await prismaClient.user.findUnique({
+            where: { id: decoded.userID }
+        })
+
+        if (!user) {
+            throw new HTTPException(401, {
+                message: "Unauthorized"
+            })
+        }
+
+        return user
     }
 }
 
