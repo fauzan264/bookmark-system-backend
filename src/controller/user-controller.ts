@@ -3,6 +3,7 @@ import { RegisterUserRequest, LoginUserRequest, toUserResponse } from "../model/
 import { UserService } from "../service/user-service";
 import { ApplicationVariable } from "../model/app-model";
 import { User } from "@prisma/client";
+import { authMiddleware } from "../middleware/auth-middleware";
 
 const userController = new Hono<{Variables: ApplicationVariable}>();
 
@@ -26,27 +27,7 @@ userController.post('/auth/login', async(c) => {
     })
 })
 
-userController.use(async (c, next) => {
-    const authHeader = c.req.header("Authorization")
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return c.json({
-            errors: "Unauthorized"
-        }, 401)
-    }
-
-    const token = authHeader.split(" ")[1]
-
-    try {
-        const user = await UserService.get(token)
-        c.set("user", user)
-        await next()
-    } catch (error) {
-        return c.json({
-            errors: "Invalid or expired token"
-        }, 401)
-    }
-
-})
+userController.use(authMiddleware)
 
 userController.get("/users/session", async (c) => {
     const user = c.get("user") as User
